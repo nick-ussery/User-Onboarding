@@ -1,5 +1,4 @@
 import React from 'react';
-import * as yup from 'yup';
 import { FormFeedback, Row, FormGroup, Form, Label, Input as FancyInput } from 'reactstrap';
 
 

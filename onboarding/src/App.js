@@ -4,6 +4,9 @@ import axios from 'axios';
 import UserForm from './components/Form';
 import FormSchema from './components/FormSchema';
 import * as yup from 'yup';
+import {v4 as uuid} from 'uuid';
+import UserCard from './components/UserCard';
+import {Row} from 'reactstrap';
 
 const initialFormValues = {
   name: '',
@@ -16,7 +19,7 @@ const initialFormErrors={
   name: '',
   email: '',
   password:'',
-  termsOfService: false
+  termsOfService: false,
 }
 
 const initialUsers=[];
@@ -69,13 +72,14 @@ function App() {
   }
 
   const onCheckbox = evt =>{
-    const name = evt.target.name;
+    const {name} = evt.target;
     const {checked} = evt.target;
 
   setFormValues({...formValues,
-    termsOfService:checked})
+    [name]:checked})
   }
 
+  useEffect(()=>{console.log('formValues changed')},[formValues])
 
   const onSubmit = evt =>{
     evt.preventDefault();
@@ -94,12 +98,26 @@ function App() {
   //disabled effect on submit button
   useEffect(()=>{
     FormSchema.isValid(formValues)
-    .then(valid =>{setDisabled(!valid)})
+    .then(valid =>{
+      // console.log('valid', valid)
+      if(formValues.termsOfService){setDisabled(!valid)}else(setDisabled(true))
+    })
   },[formValues])
+
+  const [userCards, addCards] = useState(undefined);
+
+  useEffect(()=>{
+    addCards(users.map(user=>{
+      return <UserCard key={uuid()} name={user.name} email={user.email} password={user.password} />
+    }))
+  },[users])
 
   return (
     <div className="App">
       <UserForm onChange={onChange} onCheckbox={onCheckbox} onSubmit={onSubmit} errors={formErrors} disabled={disabled} />
+      <div style={{display:'flex', justifyContent:'space-between', flexWrap:'wrap'}}>
+      {userCards}
+      </div>
     </div>
   );
 }
