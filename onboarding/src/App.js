@@ -8,6 +8,8 @@ import {v4 as uuid} from 'uuid';
 import UserCard from './components/UserCard';
 import {Row} from 'reactstrap';
 
+const url = 'https://reqres.in/api/users';
+
 const initialFormValues = {
   name: '',
   email: '',
@@ -30,15 +32,8 @@ function App() {
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState(initialFormErrors);
   const [disabled, setDisabled] = useState(intitialDisabled);
-
-  const getUsers = () =>{
-    axios.get()
-    .then(response =>{
-      // setUsers(response.data);
-      console.log(response);
-    })
-    .catch(err=>{console.log(err)})
-  }
+  const [userCards, addCards] = useState(undefined);
+  const [newUser, makeUser] = useState({});
 
   const onChange = (evt) =>{
     const name =  evt.target.name;
@@ -79,21 +74,30 @@ function App() {
     [name]:checked})
   }
 
-  useEffect(()=>{console.log('formValues changed')},[formValues])
-
   const onSubmit = evt =>{
     evt.preventDefault();
-
-    const newUser ={
+//makes a user out of the form data
+    const preUser={
       name:formValues.name,
       email:formValues.email,
-      password:formValues.password
+      password:formValues.password,
     }
-
-    setUsers([...users, newUser]);
+//sends the new user to the api to retrieve a new user that will then be added to users array
+    axios({method: 'post', url:url,data:preUser})
+    .then(response=>{
+      console.log('post request response',response.data)
+      makeUser(response.data)
+    })
+  }
+//adds the newUser to the users array
+  useEffect(()=>{
+    console.log('newUser', newUser)
+    setUsers([...users, newUser])
   }
 
-  useEffect( ()=>console.log(users),[users])
+    ,[newUser])
+
+  // useEffect( ()=>console.log('users',users),[users])
 
   //disabled effect on submit button
   useEffect(()=>{
@@ -104,13 +108,25 @@ function App() {
     })
   },[formValues])
 
-  const [userCards, addCards] = useState(undefined);
-
   useEffect(()=>{
-    addCards(users.map(user=>{
-      return <UserCard key={uuid()} name={user.name} email={user.email} password={user.password} />
-    }))
-  },[users])
+    axios.get('https://reqres.in/api/users')
+    .then(response=>{
+      // console.log('post request',response)
+      console.log('response', response.data.data)
+      setUsers(response.data.data);
+    })
+    .catch(err=>{console.log(err)})
+  },[])
+
+useEffect(()=>{
+  console.log('all users', users)
+  addCards(users.map(user=>{
+    console.log('just one user',user);
+    let NAME;
+    if(!user.last_name){NAME=user.name}else{NAME= `${user.first_name} ${user.last_name}`}
+    return <UserCard key={uuid()} name={NAME} email={user.email} password={user.password} />
+  }))
+},[users])
 
   return (
     <div className="App">
