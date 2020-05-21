@@ -4,9 +4,7 @@ import axios from 'axios';
 import UserForm from './components/Form';
 import FormSchema from './components/FormSchema';
 import * as yup from 'yup';
-import {v4 as uuid} from 'uuid';
 import UserCard from './components/UserCard';
-import {Row} from 'reactstrap';
 
 const url = 'https://reqres.in/api/users';
 
@@ -32,8 +30,7 @@ function App() {
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState(initialFormErrors);
   const [disabled, setDisabled] = useState(intitialDisabled);
-  const [userCards, addCards] = useState(undefined);
-  const [newUser, makeUser] = useState({});
+  const [userCards, addCards] = useState(undefined)
 
   const onChange = (evt) =>{
     const name =  evt.target.name;
@@ -86,18 +83,14 @@ function App() {
     axios({method: 'post', url:url,data:preUser})
     .then(response=>{
       console.log('post request response',response.data)
-      makeUser(response.data)
+      if(users.length===0){
+        setUsers([response.data])
+      }else{
+        setUsers([...users, response.data])
+      }
     })
   }
-//adds the newUser to the users array
-  useEffect(()=>{
-    console.log('newUser', newUser)
-    setUsers([...users, newUser])
-  }
 
-    ,[newUser])
-
-  // useEffect( ()=>console.log('users',users),[users])
 
   //disabled effect on submit button
   useEffect(()=>{
@@ -108,30 +101,19 @@ function App() {
     })
   },[formValues])
 
-  useEffect(()=>{
-    axios.get('https://reqres.in/api/users')
-    .then(response=>{
-      // console.log('post request',response)
-      console.log('response', response.data.data)
-      setUsers(response.data.data);
-    })
-    .catch(err=>{console.log(err)})
-  },[])
 
 useEffect(()=>{
   console.log('all users', users)
   addCards(users.map(user=>{
     console.log('just one user',user);
-    let NAME;
-    if(!user.last_name){NAME=user.name}else{NAME= `${user.first_name} ${user.last_name}`}
-    return <UserCard key={uuid()} name={NAME} email={user.email} password={user.password} />
+    return <UserCard key={user.id} name={user.name} email={user.email} password={user.password} id={user.id} createdAt={user.createdAt} />
   }))
 },[users])
 
   return (
     <div className="App">
       <UserForm onChange={onChange} onCheckbox={onCheckbox} onSubmit={onSubmit} errors={formErrors} disabled={disabled} />
-      <div style={{display:'flex', justifyContent:'space-between', flexWrap:'wrap'}}>
+      <div style={{display:'flex', flexWrap:'wrap'}}>
       {userCards}
       </div>
     </div>

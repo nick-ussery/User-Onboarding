@@ -4,7 +4,7 @@ import {Card, CardBody, CardText, CardTitle, Col} from 'reactstrap';
 
 export default function UserCard(props){
     // console.log('props given to memberCard', props);
-   const {name, email,password} = props;
+   const {name, email,password, id, createdAt} = props;
     
     return(
         <Col>
@@ -15,6 +15,8 @@ export default function UserCard(props){
             <CardTitle style={{fontSize: '24px'}}>{name}</CardTitle>
             <CardText>Email: {email}</CardText>
             <CardBody>Password: {password}</CardBody>
+                <CardText>Created At: {createdAt}</CardText>
+                <CardText>ID:{id}</CardText>
             {/* <button name={id} onClick={onEdit}>EDIT</button> */}
         </Card>
         </Col>
